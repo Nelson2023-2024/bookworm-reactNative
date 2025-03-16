@@ -1,6 +1,7 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
 import User from "../models/User.model.js";
+import { generateToken } from "../../utils/generateToken.js";
 
 const router = Router();
 
@@ -8,7 +9,7 @@ router.post("/register", async (req, res) => {
   try {
     const { email, userName, password } = req.body;
 
-    if (!email || !username || !password)
+    if (!email || !userName || !password)
       return res.status(400).json({ message: "All fields are required" });
 
     if (password.length < 6)
@@ -16,10 +17,10 @@ router.post("/register", async (req, res) => {
         .status(400)
         .json({ message: "Password should be at least 6 characters long" });
 
-    if (username.length < 3)
+    if (userName.length < 3)
       return res
         .status(400)
-        .json({ message: "Username should be at least 3 characters long" });
+        .json({ message: "UserName should be at least 3 characters long" });
 
     //check if user already exists email or userName
     // const existingUser = await User.findOne({ $or: [{ email }, { userName }] });
@@ -44,9 +45,23 @@ router.post("/register", async (req, res) => {
       profileImage,
     });
     await user.save();
+
+    const token = await generateToken(user._id);
+
+    res.status(201).json({
+      token: token,
+      user: {
+        id: user._id,
+        userName: user.userName,
+        email: user.email,
+        profileImage: user.profileImage,
+      },
+    });
   } catch (error) {
     console.log("An Error occured in the Register route", error.message);
-    res.status(500).json({ error: error.message });
+    res
+      .status(500)
+      .json({ error: "Internal server Error", message: error.message });
   }
 });
 
