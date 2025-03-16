@@ -65,6 +65,41 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {});
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    if (!email || !password)
+      return res.status(400).json({ message: "All fields are required" });
+
+    const emailExist = await User.findOne({ email });
+
+    if (!emailExist)
+      return res.status(404).json({ message: "Invalid credentials" });
+
+    const comparePass = await bcrypt.compare(password, emailExist.password);
+
+    if (!comparePass)
+      return res.status(400).json({ message: "Invalid credentials" });
+
+    //if password match generate token
+
+    const token = await generateToken(emailExist._id);
+
+    return res.status(200).json({
+      token,
+      user: {
+        id: emailExist._id,
+        email: emailExist.email,
+        username: emailExist.userName,
+        profileImage: emailExist.profileImage,
+      },
+    });
+  } catch (error) {
+    console.log("An Error occured in the Login route", error.message);
+    res
+      .status(500)
+      .json({ error: "Internal server Error", message: error.message });
+  }
+});
 
 export { router as authRoutes };
