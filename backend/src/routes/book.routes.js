@@ -5,7 +5,7 @@ import { protectRoute } from "../../middleware/protectRoute.middleware.js";
 
 const router = Router();
 
-router.use(protectRoute)
+router.use(protectRoute);
 router.post("/", async (req, res) => {
   try {
     const { title, caption, rating, image } = req.body;
