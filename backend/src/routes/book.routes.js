@@ -1,16 +1,11 @@
 import { Router } from "express";
+import cloudinary from "../lib/cloudinary.js";
+import Book from "../models/Book.model.js";
+import { protectRoute } from "../../middleware/protectRoute.middleware.js";
 
 const router = Router();
 
-router.post("/", async (req, res) => {
-    try {
-        
-    } catch (error) {
-        console.log("An Error occured in the create-book route", error.message);
-    res
-      .status(500)
-      .json({ error: "Internal server Error", message: error.message });
-    }
-});
+router.use(protectRoute);
+router.post("/", async (req, res) => {});
 
 export { router as bookRoutes };

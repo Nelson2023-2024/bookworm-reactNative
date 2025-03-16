@@ -10,7 +10,7 @@ const bookSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    imgar: {
+    image: {
       type: String,
       required: true,
     },
