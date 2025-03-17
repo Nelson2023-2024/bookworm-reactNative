@@ -99,4 +99,18 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+//get books posted by the current user
+router.get("/user-post", async (req, res) => {
+  try {
+    const books = await Book.find({ user: req.user._id }).sort({
+      creating: -1,
+    });
+  } catch (error) {
+    console.log("An Error occured in getting user-post route", error.message);
+    res
+      .status(500)
+      .json({ error: "Internal server Error", message: error.message });
+  }
+});
+
 export { router as bookRoutes };
