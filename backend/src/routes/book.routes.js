@@ -22,7 +22,7 @@ router.post("/", async (req, res) => {
       title,
       caption,
       rating,
-      image,
+      image: imageURL,
       user: req.user._id,
     });
 
@@ -31,6 +31,32 @@ router.post("/", async (req, res) => {
     res.status(201).json(newBook);
   } catch (error) {
     console.log("An Error occured in the create-book route", error.message);
+    res
+      .status(500)
+      .json({ error: "Internal server Error", message: error.message });
+  }
+});
+
+//pagination -> infinite loading
+router.get("/", async (req, res) => {
+  try {
+    const { page = 1, limit = 5 } = req.query;
+    const skip = (page - 1) * limit;
+    const books = await Book.find({})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("user", "userName profileImage");
+
+    const totalBooks = await Book.countDocuments();
+    res.send({
+      books,
+      currentPage: page,
+      totalBooks,
+      totalPages: Math.ceil(totalBooks / limit),
+    });
+  } catch (error) {
+    console.log("An Error occured in the getAll books route", error.message);
     res
       .status(500)
       .json({ error: "Internal server Error", message: error.message });
