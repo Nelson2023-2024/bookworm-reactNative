@@ -63,4 +63,40 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id: bookId } = req.params;
+
+    const book = await Book.findById(bookId);
+    if (!book) return res.status(404).json({ message: "Book not found" });
+
+    //check if the user is the created of the book
+    if (book.user.toString() !== req.user._id.toString())
+      return res.status(401).json({ message: "Unauthorized" });
+
+    //delete image from cloudinary
+
+    // https://res.Cloudinary.com/deirm4uto/image/upload/v1741568358/qyup61vejflxxw8igvid.png
+
+    if (book.image && book.image.includes("cloudinary")) {
+      try {
+        const publicId = book.image.split("/").pop().split(".")[0]; // qyup61vejflxxw8igvid.png -> qyup61vejflxxw8igvid
+        await cloudinary.uploader.destroy(publicId);
+      } catch (deleteError) {
+        console.log("Error deleting image from cloudinary", deleteError);
+      }
+    }
+
+    //if the id matches
+    await Book.deleteOne({ _id: bookId });
+
+    res.status(200).json({ message: "Book deleted successfully" });
+  } catch (error) {
+    console.log("An Error occured in the delete book route", error.message);
+    res
+      .status(500)
+      .json({ error: "Internal server Error", message: error.message });
+  }
+});
+
 export { router as bookRoutes };
