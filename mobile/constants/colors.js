@@ -32,7 +32,7 @@
 
 // OCEAN
 
-const COLORS = {
+export const COLORS = {
   primary: "#1976D2",
   textPrimary: "#1a4971",
   textSecondary: "#6d93b8",
